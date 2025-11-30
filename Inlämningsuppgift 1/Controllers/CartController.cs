@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using Inlämningsuppgift_1.Dto.Requests;
+
 namespace Inlämningsuppgift_1.Controllers
 {
     [Route("api/[controller]")]
@@ -12,10 +14,13 @@ namespace Inlämningsuppgift_1.Controllers
         private readonly CartService _service = new CartService();
         private readonly UserService _userService = new UserService(); 
 
-        public class AddItemRequest { public int ProductId { get; set; } public int Quantity { get; set; } }
+        
 
         [HttpPost("add")]
-        public IActionResult AddItem([FromHeader(Name = "X-Auth-Token")] string token, [FromBody] AddItemRequest req)
+        public IActionResult AddItem(
+            [FromHeader(Name = "X-Auth-Token")] string token, 
+            [FromBody] AddItemRequest req
+        )
         {
             var user = _userService.GetUserByToken(token);
             if (user == null) return Unauthorized();

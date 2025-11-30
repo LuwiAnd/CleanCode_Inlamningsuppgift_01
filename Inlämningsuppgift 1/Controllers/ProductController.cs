@@ -10,7 +10,11 @@ namespace Inlämningsuppgift_1.Controllers
     {
         private readonly ProductService _service = new ProductService();
 
-        public class CreateProductRequest { public string Name { get; set; } = ""; public decimal Price { get; set; } public int Stock { get; set; } }
+        public class CreateProductRequest { 
+            public string Name { get; set; } = ""; 
+            public decimal Price { get; set; } 
+            public int Stock { get; set; } 
+        }
 
         [HttpGet]
         public IActionResult GetAll() => Ok(_service.GetAll());

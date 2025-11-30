@@ -23,6 +23,10 @@ namespace Inlämningsuppgift_1.Controllers
             var cart = _cartService.GetCartForUser(user.Id).ToList();
             if (!cart.Any()) return BadRequest("Cart is empty");
 
+            // Luwi: Detta bör vara en lista av OrderItems, inte av object.
+            // Plus att det nog borde ligga i en egen funktion i _cartService
+            // så att denna funktion är kort och inte innehåller for-loopar
+            // eller annan icke-trivial logik.
             var orderItems = new List<object>();
             decimal total = 0m;
 
@@ -35,6 +39,7 @@ namespace Inlämningsuppgift_1.Controllers
                 product.Stock -= ci.Quantity;
                 _productService.UpdateProduct(product);
 
+                // Luwi: Här vore bättre att skapa ett nytt orderItem mha konstruktor. 
                 orderItems.Add(new { product.Id, product.Name, ci.Quantity, product.Price });
                 total += product.Price * ci.Quantity;
             }
