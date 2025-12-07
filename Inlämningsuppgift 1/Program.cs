@@ -2,6 +2,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddSingleton<IC>
+
+
 var app = builder.Build();
 
 app.UseRouting();

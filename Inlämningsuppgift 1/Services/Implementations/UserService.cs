@@ -14,13 +14,7 @@ namespace Inlämningsuppgift_1.Services.Implementations
   
         private static readonly Dictionary<string, int> Tokens = new Dictionary<string, int>();
 
-        public class User
-        {
-            public int Id { get; set; }
-            public string Username { get; set; } = "";
-            public string Password { get; set; } = ""; 
-            public string Email { get; set; } = "";
-        }
+        
 
         public bool Register(string username, string password, string email)
         {

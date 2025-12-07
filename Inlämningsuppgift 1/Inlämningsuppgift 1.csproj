@@ -7,9 +7,4 @@
     <RootNamespace>Inlämningsuppgift_1</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Repository\Interfaces\" />
-    <Folder Include="Repository\Implementations\" />
-  </ItemGroup>
-
 </Project>

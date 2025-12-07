@@ -7,7 +7,8 @@ namespace Inlämningsuppgift_1.Services.Implementations
     {
         // Detta bör nog bytas ut mot en lista av Carts
         //private static readonly Dictionary<int, List<CartItem>> Carts = new Dictionary<int, List<CartItem>>();
-        private static readonly List<Cart> Carts = new List<Cart>();
+        //private static readonly List<Cart> Carts = new List<Cart>();
+        // Jag har flyttat ovanstående till CartRepository.
 
         
 
