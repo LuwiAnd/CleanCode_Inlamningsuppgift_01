@@ -1,8 +1,9 @@
 ﻿using Inlämningsuppgift_1.Entities;
+using Inlämningsuppgift_1.Services.Interfaces;
 
 namespace Inlämningsuppgift_1.Services.Implementations
 {
-    public class CartService
+    public class CartService : ICartService
     {
         // Detta bör nog bytas ut mot en lista av Carts
         //private static readonly Dictionary<int, List<CartItem>> Carts = new Dictionary<int, List<CartItem>>();

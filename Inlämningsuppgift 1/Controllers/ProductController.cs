@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using Inlämningsuppgift_1.Dto.Requests;
+
 namespace Inlämningsuppgift_1.Controllers
 {
     [Route("api/[controller]")]
@@ -10,11 +12,7 @@ namespace Inlämningsuppgift_1.Controllers
     {
         private readonly ProductService _service = new ProductService();
 
-        public class CreateProductRequest { 
-            public string Name { get; set; } = ""; 
-            public decimal Price { get; set; } 
-            public int Stock { get; set; } 
-        }
+        
 
         [HttpGet]
         public IActionResult GetAll() => Ok(_service.GetAll());

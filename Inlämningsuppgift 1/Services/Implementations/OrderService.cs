@@ -1,8 +1,9 @@
 ﻿using Inlämningsuppgift_1.Entities;
+using Inlämningsuppgift_1.Services.Interfaces;
 
 namespace Inlämningsuppgift_1.Services.Implementations
 {
-    public class OrderService
+    public class OrderService : IOrderService
     {
         private static readonly List<Order> Orders = new List<Order>();
         private static int _nextId = 1;
@@ -27,5 +28,12 @@ namespace Inlämningsuppgift_1.Services.Implementations
         public Order? Get(int orderId) => Orders.FirstOrDefault(o => o.Id == orderId);
 
         public IEnumerable<Order> GetForUser(int userId) => Orders.Where(o => o.UserId == userId);
+
+        // ---- Nya funktioner av Luwi ----
+        public decimal CalculateOrderTotal(Order order)
+        {
+
+        }
+
     }
 }

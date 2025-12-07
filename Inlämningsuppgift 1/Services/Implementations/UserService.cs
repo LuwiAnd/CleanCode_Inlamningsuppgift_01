@@ -1,6 +1,8 @@
-﻿namespace Inlämningsuppgift_1.Services.Implementations
+﻿using Inlämningsuppgift_1.Services.Interfaces;
+
+namespace Inlämningsuppgift_1.Services.Implementations
 {
-    public class UserService
+    public class UserService : IUserService
     {
        
         private static readonly List<User> Users = new List<User>

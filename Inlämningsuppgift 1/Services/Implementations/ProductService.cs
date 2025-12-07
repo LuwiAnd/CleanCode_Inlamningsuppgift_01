@@ -1,6 +1,8 @@
-﻿namespace Inlämningsuppgift_1.Services.Implementations
+﻿using Inlämningsuppgift_1.Services.Interfaces;
+
+namespace Inlämningsuppgift_1.Services.Implementations
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
         private static readonly List<Product> Products = new List<Product>
         {
