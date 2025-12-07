@@ -7,4 +7,8 @@
     <RootNamespace>Inlämningsuppgift_1</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+  </ItemGroup>
+
 </Project>
