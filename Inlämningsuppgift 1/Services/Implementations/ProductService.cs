@@ -6,14 +6,6 @@ namespace Inlämningsuppgift_1.Services.Implementations
 {
     public class ProductService : IProductService
     {
-        // Detta flyttar jag till ProductRepository.
-        //private static readonly List<Product> Products = new List<Product>
-        //{
-        //    new Product { Id = 1, Name = "Pen", Price = 1.5m, Stock = 100 },
-        //    new Product { Id = 2, Name = "Notebook", Price = 3.0m, Stock = 50 },
-        //    new Product { Id = 3, Name = "Mug", Price = 6.0m, Stock = 20 }
-        //};
-
         private readonly IProductRepository _repository;
 
         public ProductService(IProductRepository repository)
@@ -28,13 +20,14 @@ namespace Inlämningsuppgift_1.Services.Implementations
 
         public Product? GetProductById(int id) => _repository.GetProductById(id);
 
-        //public List<Product> Search(string? query)
-        public IEnumerable<Product> Search(string? query)
+        //public IEnumerable<Product> Search(string? query)
+        public List<Product> Search(string? query)
         {
             if (string.IsNullOrWhiteSpace(query)) return GetAllProducts();
             var q = query!.ToLowerInvariant();
 
             var products = GetAllProducts();
+
             return products
                 .Where(
                     p => p.Name.ToLowerInvariant().Contains(q) 
@@ -46,10 +39,25 @@ namespace Inlämningsuppgift_1.Services.Implementations
 
         //public Product Create(string name, decimal price, int stock)
         //public void Create(Product product)
-        public void Create(string name, decimal price, int stockBalance)
+        public void CreateProduct(string name, decimal price, int stockBalance)
         {
-            if (string.IsNullOrWhiteSpace(name) || price < 0 || stockBalance < 0)
-                throw new ArgumentException("Cannot create a new product from null value.");
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException(
+                    nameof(name), 
+                    "Invalid product name: name cannot be empty."
+                );
+
+            if (price < 0)
+                throw new ArgumentException(
+                    nameof(price), 
+                    "Invalid price: price must be positive."
+                );
+
+            if (stockBalance < 0)
+                throw new ArgumentException(
+                    nameof(stockBalance), 
+                    "Invalid stock balance: stock balance must be positive."
+                );
 
             var products = _repository.GetAll();
             var newId = products.Any() ? products.Max(p => p.Id) + 1 : 1;
@@ -58,21 +66,28 @@ namespace Inlämningsuppgift_1.Services.Implementations
             _repository.CreateProduct(product);
         }
 
-        public bool ChangeStock(int id, int delta)
+        public bool ChangeProductStock(int productId, int delta)
         {
-            var p = GetById(id);
-            if (p == null) return false;
-            p.Stock += delta;
+            var product = GetProductById(productId);
+
+            if (product == null) return false;
+            
+            product.StockBalance += delta;
+            _repository.UpdateProduct(product);
+
             return true;
         }
 
-        public void UpdateProduct(Product p)
+        public void UpdateProduct(Product product)
         {
-            var existing = GetById(p.Id);
-            if (existing == null) return;
-            existing.Name = p.Name;
-            existing.Price = p.Price;
-            existing.Stock = p.Stock;
+            var preexistingProduct = _repository.GetProductById(product.Id);
+            if (preexistingProduct == null)
+                throw new ArgumentException($"Product with ID {product.Id} does not exist.");
+
+            _repository.UpdateProduct(product);
         }
+
+        public void DeleteProduct(int id) => 
+            _repository.DeleteProduct(id);
     }
 }

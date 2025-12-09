@@ -4,10 +4,13 @@ namespace Inlämningsuppgift_1.Services.Interfaces
 {
     public interface IProductService
     {
-        Product? GetProductById(int id);
-        IEnumerable<Product> GetAllProducts();
-        void CreateProduct(Product product);
-        void UpdateProduct(Product product);
-        void DeleteProduct(int id);
+        public List<Product> GetAllProducts();
+        public Product? GetProductById(int id);
+        public List<Product> Search(string? query);
+        //void CreateProduct(Product product);
+        public void CreateProduct(string name, decimal price, int stockBalance);
+        public void UpdateProduct(Product product);
+        public void DeleteProduct(int id);
+        public bool ChangeProductStock(int productId, int delta);
     }
 }

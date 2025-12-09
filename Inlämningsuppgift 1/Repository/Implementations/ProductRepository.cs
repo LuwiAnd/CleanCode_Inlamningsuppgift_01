@@ -33,9 +33,9 @@ namespace Inlämningsuppgift_1.Repository.Implementations
 
         public void UpdateProduct(Product product)
         {
-            var existing = GetProductById(product.Id);
-            if (existing != null)
-                _products.Remove(existing);
+            var preexistingProduct = GetProductById(product.Id);
+            if (preexistingProduct != null)
+                _products.Remove(preexistingProduct);
 
             _products.Add(product);
         }
