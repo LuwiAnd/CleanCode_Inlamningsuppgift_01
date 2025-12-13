@@ -1,6 +1,7 @@
-﻿using Inlämningsuppgift_1.Entities;
-using Inlämningsuppgift_1.Services.Interfaces;
+﻿using Inlämningsuppgift_1.Dto.Responses;
+using Inlämningsuppgift_1.Entities;
 using Inlämningsuppgift_1.Repository.Interfaces;
+using Inlämningsuppgift_1.Services.Interfaces;
 
 namespace Inlämningsuppgift_1.Services.Implementations
 {
@@ -54,6 +55,26 @@ namespace Inlämningsuppgift_1.Services.Implementations
             });
         }
 
-        
+        // Denna funktion kanske borde legat i en ny mappningsklass för att 
+        // detta kan ses som ett nytt ansvar och därför göra att OrderService
+        // bryter mot SRP. Det kändes dock lite onödigt att lägga den i en 
+        // egen funktion, eftersom jag tänker att den endast ska användas 
+        // tillsammans med denna klass.
+        public OrderResponse ToOrderResponse(Order order)
+        {
+            return new OrderResponse
+            {
+                OrderId = order.Id,
+                UserId = order.UserId,
+                CreatedAt = order.CreatedAt,
+                Items = order.Items.Select(i => new OrderItemResponse
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.ProductName,
+                    UnitPrice = i.UnitPrice,
+                    Quantity = i.Quantity
+                }).ToList()
+            };
+        }
     }
 }

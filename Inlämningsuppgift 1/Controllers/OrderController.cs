@@ -59,11 +59,16 @@ namespace Inlämningsuppgift_1.Controllers
 
             _cartService.ClearCart(user.Id);
 
-            return Ok(new { OrderId = order.Id, Total = order.Total });
+            //return Ok(new { OrderId = order.Id, Total = order.Total });
+            var response = _orderService.ToOrderResponse(order);
+            return Ok(response);
         }
 
         [HttpGet("{orderId}")]
-        public IActionResult GetOrder(int orderId, [FromHeader(Name = "X-Auth-Token")] string token)
+        public IActionResult GetOrder(
+            int orderId, 
+            [FromHeader(Name = "X-Auth-Token")] string token
+        )
         {
             var user = _userService.GetUserByToken(token);
             if (user == null) return Unauthorized();
@@ -72,7 +77,9 @@ namespace Inlämningsuppgift_1.Controllers
             if (order == null) return NotFound();
             if (order.UserId != user.Id) return Forbid();
 
-            return Ok(order);
+            //return Ok(order);
+            var response = _orderService.ToOrderResponse(order);
+            return Ok(response);
         }
     }
 }
