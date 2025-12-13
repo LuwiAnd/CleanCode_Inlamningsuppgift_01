@@ -35,7 +35,7 @@ namespace Inlämningsuppgift_1.Controllers
         [HttpPost("add")]
         public IActionResult AddItem(
             [FromHeader(Name = "X-Auth-Token")] string token, 
-            [FromBody] AddItemRequest req
+            [FromBody] AddToCartRequest req
         )
         {
             var user = _userService.GetUserByToken(token);
@@ -54,30 +54,44 @@ namespace Inlämningsuppgift_1.Controllers
             if (user == null) return Unauthorized();
 
             var cart = _cartService.GetCartForUser(user.Id);
-            
-            // Luwi: denna service sparas i konstruktorn för närvarande. Jag
-            // kommer troligtvis uppdatera så att Program.cs instansierar alla
-            // service:ar senare.
-            //var productService = new ProductService(); 
 
-
-            var detailedCart = cart.Select(ci =>
+            if (cart?.CartItems == null || cart.CartItems.Count == 0)
             {
-                var p = _productService.GetById(ci.ProductId);
+                return Ok(new CartResponse
+                {
+                    UserId = user.Id,
+                    Items = new List<CartItemResponse>(),
+                    Total = 0m
+                });
+            }
 
-                //return new { ci.ProductId, ProductName = p?.Name, ci.Quantity, UnitPrice = p?.Price };
-                return new CartItemResponse{ 
-                    ProductId = ci.ProductId, 
-                    ProductName = p?.Name, 
-                    Quantity = ci.Quantity, 
-                    UnitPrice = p?.Price 
-                };
-            });
-            return Ok(detailedCart);
+            var response = new CartResponse
+            {
+                UserId = user.Id,
+                Items = cart.CartItems.Select(ci =>
+                {
+                    var product = _productService.GetProductById(ci.ProductId);
+
+                    return new CartItemResponse
+                    {
+                        ProductId = ci.ProductId,
+                        ProductName = product?.Name ?? "Unknown product",
+                        Quantity = ci.Quantity,
+                        UnitPrice = product?.Price
+                    };
+                }).ToList()
+            };
+
+            response.Total = response.Items.Sum(i => (i.UnitPrice ?? 0m) * i.Quantity);
+
+            return Ok(response);
         }
 
         [HttpPost("remove")]
-        public IActionResult RemoveItem([FromHeader(Name = "X-Auth-Token")] string token, [FromQuery] int productId)
+        public IActionResult RemoveItem(
+            [FromHeader(Name = "X-Auth-Token")] string token, 
+            [FromQuery] int productId
+        )
         {
             var user = _userService.GetUserByToken(token);
             if (user == null) return Unauthorized();
@@ -93,6 +107,7 @@ namespace Inlämningsuppgift_1.Controllers
             if (user == null) return Unauthorized();
 
             _cartService.ClearCart(user.Id);
+
             return Ok();
         }
     }

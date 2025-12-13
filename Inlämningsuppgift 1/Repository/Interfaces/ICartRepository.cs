@@ -5,10 +5,10 @@ namespace Inlämningsuppgift_1.Repository.Interfaces
     
     public interface ICartRepository
     {
-        Cart? GetCartByUserId(int userId);
-        void CreateCart(Cart cart);
-        void UpdateCart(Cart cart);
-        void DeleteCart(int userId);
-        List<Cart> GetAllCarts();
+        public Cart? GetCartByUserId(int userId);
+        public void CreateCart(Cart cart);
+        public void UpdateCart(Cart cart);
+        public void DeleteCart(int userId);
+        public List<Cart> GetAllCarts();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Inlämningsuppgift_1.Dto.Requests
 {
-    public class AddItemRequest
+    public class AddToCartRequest
     {
         public int ProductId { get; set; } 
         public int Quantity { get; set; }
