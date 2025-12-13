@@ -1,4 +1,6 @@
-﻿using Inlämningsuppgift_1.Services.Implementations;
+﻿using Inlämningsuppgift_1.Entities;
+using Inlämningsuppgift_1.Services.Implementations;
+using Inlämningsuppgift_1.Services.Interfaces;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +11,23 @@ namespace Inlämningsuppgift_1.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly OrderService _orderService = new OrderService();
-        private readonly CartService _cartService = new CartService();
-        private readonly ProductService _productService = new ProductService();
-        private readonly UserService _userService = new UserService();
+        private readonly IOrderService _orderService;
+        private readonly ICartService _cartService;
+        private readonly IProductService _productService;
+        private readonly IUserService _userService;
+
+        public OrderController(
+            IOrderService orderService,
+            ICartService cartService,
+            IProductService productService,
+            IUserService userService)
+        {
+            _orderService = orderService;
+            _cartService = cartService;
+            _productService = productService;
+            _userService = userService;
+        }
+
 
         [HttpPost("create")]
         public IActionResult CreateOrder([FromHeader(Name = "X-Auth-Token")] string token)
@@ -20,35 +35,31 @@ namespace Inlämningsuppgift_1.Controllers
             var user = _userService.GetUserByToken(token);
             if (user == null) return Unauthorized();
 
-            var cart = _cartService.GetCartForUser(user.Id).ToList();
-            if (!cart.Any()) return BadRequest("Cart is empty");
+            var cart = _cartService.GetCartForUser(user.Id);
+            if (cart == null || cart?.CartItems?.Count == 0)
+                return BadRequest("Cart is empty.");
 
-            // Luwi: Detta bör vara en lista av OrderItems, inte av object.
-            // Plus att det nog borde ligga i en egen funktion i _cartService
-            // så att denna funktion är kort och inte innehåller for-loopar
-            // eller annan icke-trivial logik.
-            var orderItems = new List<object>();
-            decimal total = 0m;
-
-            foreach (var ci in cart)
+            var orderItems = cart.CartItems.Select(ci =>
             {
-                var product = _productService.GetById(ci.ProductId);
-                if (product == null) return BadRequest($"Product {ci.ProductId} missing.");
-                if (product.Stock < ci.Quantity) return BadRequest($"Not enough stock for {product.Name}.");
+                var p = _productService.GetProductById(ci.ProductId);
+                if (p == null)
+                    throw new Exception($"Product not found: {ci.ProductId}");
 
-                product.Stock -= ci.Quantity;
-                _productService.UpdateProduct(product);
+                return new OrderItem
+                {
+                    ProductId = p.Id,
+                    ProductName = p.Name,
+                    Quantity = ci.Quantity,
+                    UnitPrice = p.Price
+                };
 
-                // Luwi: Här vore bättre att skapa ett nytt orderItem mha konstruktor. 
-                orderItems.Add(new { product.Id, product.Name, ci.Quantity, product.Price });
-                total += product.Price * ci.Quantity;
-            }
+            }).ToList();
 
-            var order = _orderService.CreateOrder(user.Id, orderItems, total);
+            var order = _orderService.CreateOrder(user.Id, orderItems);
 
             _cartService.ClearCart(user.Id);
 
-            return Ok(new { OrderId = order.Id, Total = total });
+            return Ok(new { OrderId = order.Id, Total = order.Total });
         }
 
         [HttpGet("{orderId}")]
@@ -57,7 +68,7 @@ namespace Inlämningsuppgift_1.Controllers
             var user = _userService.GetUserByToken(token);
             if (user == null) return Unauthorized();
 
-            var order = _orderService.Get(orderId);
+            var order = _orderService.GetOrderById(orderId);
             if (order == null) return NotFound();
             if (order.UserId != user.Id) return Forbid();
 

@@ -1,6 +1,13 @@
-﻿namespace Inlämningsuppgift_1.Services.Interfaces
+﻿using Inlämningsuppgift_1.Entities;
+
+namespace Inlämningsuppgift_1.Services.Interfaces
 {
     public interface IOrderService
     {
+        public Order CreateOrder(int userId, List<OrderItem> items);
+        public Order? GetOrderById(int orderId);
+        public IEnumerable<Order> GetOrdersForUser(int userId);
+        public decimal CalculateOrderTotal(Order order);
+        //public decimal CalculateOrderTotalFromItems(List<OrderItem> items);
     }
 }

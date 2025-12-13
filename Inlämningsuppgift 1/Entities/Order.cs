@@ -6,6 +6,6 @@
         public int UserId { get; set; }
         public DateTime CreatedAt { get; set; }
         public decimal Total { get; set; }
-        public List<object> Items { get; set; } = new List<object>();
+        public List<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 }

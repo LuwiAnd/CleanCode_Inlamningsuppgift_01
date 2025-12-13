@@ -1,39 +1,59 @@
 ﻿using Inlämningsuppgift_1.Entities;
 using Inlämningsuppgift_1.Services.Interfaces;
+using Inlämningsuppgift_1.Repository.Interfaces;
 
 namespace Inlämningsuppgift_1.Services.Implementations
 {
     public class OrderService : IOrderService
     {
-        private static readonly List<Order> Orders = new List<Order>();
-        private static int _nextId = 1;
+        //private static readonly List<Order> Orders = new List<Order>();
+        //private static int _nextId = 1;
+
+        private readonly IOrderRepository _repository;
+        private readonly IProductService _productService;
+
+        public OrderService(IOrderRepository repository, IProductService productService)
+        {
+            _repository = repository;
+            _productService = productService;
+        }
+
 
         
 
-     
-        public Order CreateOrder(int userId, List<object> items, decimal total)
+        public Order CreateOrder(int userId, List<OrderItem> items)
         {
             var order = new Order
             {
-                Id = _nextId++,
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow,
                 Items = items,
-                Total = total
+                Total = CalculateOrderTotalFromItems(items)
             };
-            Orders.Add(order);
-            return order;
+
+            return _repository.CreateOrder(order);
         }
 
-        public Order? Get(int orderId) => Orders.FirstOrDefault(o => o.Id == orderId);
+        public Order? GetOrderById(int orderId) => _repository.GetOrderById(orderId);
 
-        public IEnumerable<Order> GetForUser(int userId) => Orders.Where(o => o.UserId == userId);
+        public IEnumerable<Order> GetOrdersForUser(int userId) => _repository.GetOrdersForUser(userId);
 
         // ---- Nya funktioner av Luwi ----
-        public decimal CalculateOrderTotal(Order order)
-        {
 
+        public decimal CalculateOrderTotal(Order order)
+            => CalculateOrderTotalFromItems(order.Items);
+
+        private decimal CalculateOrderTotalFromItems(List<OrderItem> items)
+        {
+            // Här kanske jag borde lägga till en kontroll att det finns priser 
+            // för alla produkter.
+            return items.Sum(i =>
+            {
+                var p = _productService.GetProductById(i.ProductId);
+                return (p?.Price ?? 0) * i.Quantity;
+            });
         }
 
+        
     }
 }
