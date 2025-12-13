@@ -1,4 +1,5 @@
 ﻿using Inlämningsuppgift_1.Entities;
+using Inlämningsuppgift_1.Repository.Interfaces;
 using Inlämningsuppgift_1.Services.Interfaces;
 
 namespace Inlämningsuppgift_1.Services.Implementations
@@ -10,52 +11,74 @@ namespace Inlämningsuppgift_1.Services.Implementations
         //private static readonly List<Cart> Carts = new List<Cart>();
         // Jag har flyttat ovanstående till CartRepository.
 
-        
+        private readonly ICartRepository _repository;
 
-        public void AddToCart(int userId, int productId, int quantity)
+        public CartService(ICartRepository repository)
         {
-            //if (!Carts.ContainsKey(userId)) Carts[userId] = new List<CartItem>();
-            //var list = Carts[userId];
-
-            Cart? userCart = Carts
-                .Where(c => c.UserId == userId)
-                .FirstOrDefault();
-            if (userCart == null) Carts.Add(new Cart { UserId = userId, CartItems = null });
-
-            var productInCart = userCart!.CartItems?.FirstOrDefault(ci => ci.ProductId == productId);
-            if (productInCart == null) userCart!.CartItems?.Add(new CartItem { ProductId = productId, Quantity = quantity });
-            else productInCart.Quantity += quantity;
+            _repository = repository;
         }
 
         //public IEnumerable<CartItem> GetCartForUser(int userId)
         public Cart? GetCartForUser(int userId)
         {
-            //if (!Carts.ContainsKey(userId)) return Enumerable.Empty<CartItem>();
-            Cart? userCart = Carts
-                .Where(c => c.UserId == userId)
-                .FirstOrDefault();
-
-            return userCart;
+            return _repository.GetCartByUserId(userId);
         }
+
+        public void AddToCart(int userId, int productId, int quantity)
+        {
+            var cart = _repository.GetCartByUserId(userId);
+
+            if(cart == null)
+            {
+                cart = new Cart
+                {
+                    UserId = userId,
+                    CartItems = new List<CartItem>()
+                };
+
+                _repository.CreateCart(cart);
+            }
+
+            if (cart.CartItems == null)
+                cart.CartItems = new List<CartItem>();
+
+            var item = cart.CartItems
+                .FirstOrDefault(ci => ci.ProductId == productId);
+
+            if (item == null)
+            {
+                cart.CartItems.Add(new CartItem
+                {
+                    ProductId = productId,
+                    Quantity = quantity
+                });
+            }
+            else
+            {
+                item.Quantity += quantity;
+            }
+
+            _repository.UpdateCart(cart);
+
+
+        }
+
+
 
         public void RemoveFromCart(int userId, int productId)
         {
-            //if (!Carts.ContainsKey(userId)) return;
-            Cart? userCart = Carts
-                .Where(c => c.UserId == userId)
-                .FirstOrDefault();
-            if (userCart == null) return;
+            var cart = _repository.GetCartByUserId(userId);
+            if (cart == null || cart.CartItems == null)
+                return;
 
-            //var list = Carts[userId];
-            //var existing = list.FirstOrDefault(ci => ci.ProductId == productId);
-            //if (existing != null) list.Remove(existing);
-            var productInCart = userCart!.CartItems?.RemoveAll(ci => ci.ProductId == productId);
+            cart.CartItems.RemoveAll(ci => ci.ProductId == productId);
+
+            _repository.UpdateCart(cart);
         }
 
         public void ClearCart(int userId)
         {
-            //if (Carts.ContainsKey(userId)) Carts[userId].Clear();
-            Carts.RemoveAll(c => c.UserId == userId);
+            _repository.DeleteCart(userId);
         }
     }
 }
