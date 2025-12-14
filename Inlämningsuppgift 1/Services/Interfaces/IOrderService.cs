@@ -11,5 +11,6 @@ namespace Inlämningsuppgift_1.Services.Interfaces
         public decimal CalculateOrderTotal(Order order);
 
         public OrderResponse ToOrderResponse(Order order);
+        public Order? CreateOrderFromCart(int userId, Cart cart);
     }
 }

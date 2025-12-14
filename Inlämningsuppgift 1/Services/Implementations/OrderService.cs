@@ -67,6 +67,7 @@ namespace Inlämningsuppgift_1.Services.Implementations
                 OrderId = order.Id,
                 UserId = order.UserId,
                 CreatedAt = order.CreatedAt,
+                Total = order.Total,
                 Items = order.Items.Select(i => new OrderItemResponse
                 {
                     ProductId = i.ProductId,
@@ -76,5 +77,32 @@ namespace Inlämningsuppgift_1.Services.Implementations
                 }).ToList()
             };
         }
+
+
+        public Order? CreateOrderFromCart(int userId, Cart cart)
+        {
+            var items = cart.CartItems.Select(ci =>
+            {
+                var p = _productService.GetProductById(ci.ProductId);
+                if (p == null) return null;
+
+                return new OrderItem
+                {
+                    ProductId = p.Id,
+                    ProductName = p.Name,
+                    Quantity = ci.Quantity,
+                    UnitPrice = p.Price
+                };
+            })
+            .Where(i => i != null)
+            .Cast<OrderItem>()
+            .ToList();
+
+            if (items.Count == 0)
+                return null;
+
+            return CreateOrder(userId, items);
+        }
+
     }
 }

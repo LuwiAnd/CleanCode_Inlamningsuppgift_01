@@ -39,27 +39,13 @@ namespace Inlämningsuppgift_1.Controllers
             if (cart == null || cart?.CartItems?.Count == 0)
                 return BadRequest("Cart is empty.");
 
-            var orderItems = cart.CartItems.Select(ci =>
-            {
-                var p = _productService.GetProductById(ci.ProductId);
-                if (p == null)
-                    throw new Exception($"Product not found: {ci.ProductId}");
+            var order = _orderService.CreateOrderFromCart(user.Id, cart);
+            if (order == null)
+                return BadRequest("Order could not be created.");
 
-                return new OrderItem
-                {
-                    ProductId = p.Id,
-                    ProductName = p.Name,
-                    Quantity = ci.Quantity,
-                    UnitPrice = p.Price
-                };
-
-            }).ToList();
-
-            var order = _orderService.CreateOrder(user.Id, orderItems);
 
             _cartService.ClearCart(user.Id);
 
-            //return Ok(new { OrderId = order.Id, Total = order.Total });
             var response = _orderService.ToOrderResponse(order);
             return Ok(response);
         }
