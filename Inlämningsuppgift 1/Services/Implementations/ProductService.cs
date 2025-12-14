@@ -1,6 +1,7 @@
-﻿using Inlämningsuppgift_1.Repository.Interfaces;
-using Inlämningsuppgift_1.Services.Interfaces;
+﻿using Inlämningsuppgift_1.Dto.Responses;
 using Inlämningsuppgift_1.Entities;
+using Inlämningsuppgift_1.Repository.Interfaces;
+using Inlämningsuppgift_1.Services.Interfaces;
 
 namespace Inlämningsuppgift_1.Services.Implementations
 {
@@ -20,26 +21,29 @@ namespace Inlämningsuppgift_1.Services.Implementations
 
         public Product? GetProductById(int id) => _repository.GetProductById(id);
 
-        //public IEnumerable<Product> Search(string? query)
-        public List<Product> Search(string? query)
+        public IEnumerable<Product> Search(string? query)
         {
-            if (string.IsNullOrWhiteSpace(query)) return GetAllProducts();
+            if (string.IsNullOrWhiteSpace(query)) 
+                return GetAllProducts();
+
             var q = query!.ToLowerInvariant();
 
             var products = GetAllProducts();
 
             return products
                 .Where(
-                    p => p.Name.ToLowerInvariant().Contains(q) 
-                    || 
+                    p =>
+                    p.Name.ToLowerInvariant().Contains(q)
+                    ||
                     p.Price.ToString().Contains(q)
-                )
-                .ToList();
+                );
         }
 
-        //public Product Create(string name, decimal price, int stock)
-        //public void Create(Product product)
-        public void CreateProduct(string name, decimal price, int stockBalance)
+        public Product CreateProduct(
+            string name, 
+            decimal price, 
+            int stockBalance
+        )
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException(
@@ -60,15 +64,24 @@ namespace Inlämningsuppgift_1.Services.Implementations
                 );
 
             var products = _repository.GetAll();
-            var newId = products.Any() ? products.Max(p => p.Id) + 1 : 1;
-            var product = new Product { Id = newId, Name = name, Price = price, StockBalance = stockBalance };
+            //var newId = products.Any() ? products.Max(p => p.Id) + 1 : 1; // Detta ska jag flytta till repo sen!!
+                                                                          // ??!!???
+            var product = new Product 
+            { 
+                //Id = newId, 
+                Name = name, 
+                Price = price, 
+                StockBalance = stockBalance 
+            };
 
             _repository.CreateProduct(product);
+
+            return product;
         }
 
         public bool ChangeProductStock(int productId, int delta)
         {
-            var product = GetProductById(productId);
+            var product = _repository.GetProductById(productId);
 
             if (product == null) return false;
             
@@ -89,5 +102,25 @@ namespace Inlämningsuppgift_1.Services.Implementations
 
         public void DeleteProduct(int id) => 
             _repository.DeleteProduct(id);
+
+
+
+        public ProductResponse ToProductResponse(Product p)
+        {
+            return new ProductResponse
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                StockBalance = p.StockBalance
+            };
+        }
+
+        public IEnumerable<ProductResponse> ToProductResponseList(IEnumerable<Product> products)
+        {
+            return products.Select(ToProductResponse);
+        }
+
+
     }
 }

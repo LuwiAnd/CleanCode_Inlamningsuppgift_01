@@ -28,6 +28,14 @@ namespace Inlämningsuppgift_1.Repository.Implementations
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
+            var newId = _products.Any() ? _products.Max(p => p.Id) + 1 : 1;
+            
+            // Här kanske jag ska lägga på ett slumpat heltal, eftersom
+            // man inte vill att någon ska kunna ta reda på hur många
+            // produkter man har i databasen och vilka Id de har.
+            product.Id = newId; 
+
+
             _products.Add(product);
         }
 

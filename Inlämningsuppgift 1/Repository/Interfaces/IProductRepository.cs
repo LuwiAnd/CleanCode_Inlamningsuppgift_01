@@ -1,14 +1,16 @@
-﻿using Inlämningsuppgift_1.Entities;
+﻿using Inlämningsuppgift_1.Dto.Responses;
+using Inlämningsuppgift_1.Entities;
 
 namespace Inlämningsuppgift_1.Repository.Interfaces
 {
     public interface IProductRepository
     {
-        Product? GetProductById(int id);
-        IEnumerable<Product> GetAll();
-        void CreateProduct(Product product);
-        void UpdateProduct(Product product);
-        void DeleteProduct(int id);
+        public Product? GetProductById(int id);
+        public IEnumerable<Product> GetAll();
+        public void CreateProduct(Product product);
+        public void UpdateProduct(Product product);
+        public void DeleteProduct(int id);
+
     }
 }
 
