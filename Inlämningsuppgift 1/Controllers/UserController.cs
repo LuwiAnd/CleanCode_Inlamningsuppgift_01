@@ -1,4 +1,6 @@
-﻿using Inlämningsuppgift_1.Services.Implementations;
+﻿using Inlämningsuppgift_1.Dto.Requests;
+using Inlämningsuppgift_1.Services.Implementations;
+using Inlämningsuppgift_1.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using static Inlämningsuppgift_1.Services.Implementations.UserService;
 
@@ -9,45 +11,45 @@ namespace Inlämningsuppgift_1.Controllers
     
     public class UserController : ControllerBase
     {
-        private readonly UserService _service = new UserService();
-        
-        public class LoginRequest { public string Username { get; set; } = ""; public string Password { get; set; } = ""; }
-        public class RegisterRequest { public string Username { get; set; } = ""; public string Password { get; set; } = ""; public string Email { get; set; } = ""; }
+        private readonly IUserService _service;
 
-        [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterRequest req)
+        public UserController(IUserService service)
         {
-            if (string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password))
+            _service = service;
+        }
+
+        
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] UserRegisterRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.Username) ||
+                string.IsNullOrWhiteSpace(req.Password))
                 return BadRequest("Username and password required.");
 
-            var created = _service.Register(req.Username, req.Password, req.Email);
-            if (!created) return Conflict("User already exists.");
+            var ok = _service.Register(req);
+            if (!ok) return Conflict("User already exists.");
 
             return Ok(new { Message = "Registered" });
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest req)
+        public IActionResult Login([FromBody] UserLoginRequest req)
         {
-            if (string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password))
-                return BadRequest("Missing credentials.");
+            var response = _service.Login(req);
+            if (response == null) return Unauthorized("Invalid credentials.");
 
-            var token = _service.Login(req.Username, req.Password);
-            if (token == null) return Unauthorized("Invalid credentials.");
-                       
-            return Ok(new { Token = token });
+            return Ok(response);
         }
 
         [HttpGet("profile")]
         public IActionResult Profile([FromHeader(Name = "X-Auth-Token")] string token)
         {
-            
             if (string.IsNullOrWhiteSpace(token)) return Unauthorized();
 
-            var profile = _service.GetUserByToken(token);
-            if (profile == null) return Unauthorized();
+            var user = _service.GetUserByToken(token);
+            if (user == null) return Unauthorized();
 
-            return Ok(new { profile.Username, profile.Email, profile.Id });
+            return Ok(_service.ToUserResponse(user));
         }
     }
 }

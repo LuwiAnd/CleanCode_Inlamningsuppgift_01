@@ -9,7 +9,7 @@ namespace Inlämningsuppgift_1.Repository.Interfaces
         User? GetUserById(int id);
         User? GetUserByName(string username);
         IEnumerable<User> GetAllUsers();
-        bool CreateUser(CreateUserRequest userRequest);
+        bool CreateUser(UserRegisterRequest userRequest);
         void UpdateUser(User user);
         void DeleteUser(int id);
     }

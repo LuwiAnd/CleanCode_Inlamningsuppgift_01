@@ -37,7 +37,7 @@ namespace Inlämningsuppgift_1.Repository.Implementations
             return _users.ToList();
         }
 
-        public bool CreateUser(CreateUserRequest userRequest)
+        public bool CreateUser(UserRegisterRequest userRequest)
         {
             // Varför inte behålla denna?
             if (userRequest == null)

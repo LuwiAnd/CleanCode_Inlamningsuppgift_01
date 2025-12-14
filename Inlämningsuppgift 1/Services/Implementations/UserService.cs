@@ -1,7 +1,8 @@
-﻿using Inlämningsuppgift_1.Services.Interfaces;
+﻿using Inlämningsuppgift_1.Dto.Requests;
+using Inlämningsuppgift_1.Dto.Responses;
 using Inlämningsuppgift_1.Entities;
-using Inlämningsuppgift_1.Dto.Requests;
 using Inlämningsuppgift_1.Repository.Interfaces;
+using Inlämningsuppgift_1.Services.Interfaces;
 
 
 namespace Inlämningsuppgift_1.Services.Implementations
@@ -18,31 +19,28 @@ namespace Inlämningsuppgift_1.Services.Implementations
         {
             _repository = repository;
         }
-        
 
-        public bool Register(string username, string password, string email)
+
+        public bool Register(UserRegisterRequest request)
         {
-            CreateUserRequest? request = new CreateUserRequest { 
-                Username = username, 
-                Password = password, 
-                Email = email 
-            };
+            if (string.IsNullOrWhiteSpace(request.Username) ||
+                string.IsNullOrWhiteSpace(request.Password))
+                return false;
 
-            var userWasCreated = _repository.CreateUser(request);
-
-            return userWasCreated;
+            return _repository.CreateUser(request);
         }
 
-        public string? Login(string username, string password)
+        public UserLoginResponse? Login(UserLoginRequest request)
         {
-            var user = _repository.GetUserByName(username);
-            if (user == null || user.Password != password)
+            var user = _repository.GetUserByName(request.Username);
+
+            if (user == null || user.Password != request.Password)
                 return null;
 
             var token = "token-" + Guid.NewGuid();
             Tokens[token] = user.Id;
 
-            return token;
+            return ToUserLoginResponse(token, user);
         }
 
         public User? GetUserByToken(string token)
@@ -55,6 +53,32 @@ namespace Inlämningsuppgift_1.Services.Implementations
             return null;
         }
 
-        public User? GetUserById(int id) => _repository.GetUserById(id);
+        
+
+
+
+        public User? GetUserById(int id) => 
+            _repository.GetUserById(id);
+
+
+        public UserResponse ToUserResponse(User user)
+        {
+            return new UserResponse
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email
+            };
+        }
+
+        public UserLoginResponse ToUserLoginResponse(string token, User user)
+        {
+            return new UserLoginResponse
+            {
+                Token = token,
+                UserId = user.Id
+            };
+        }
+
     }
 }
