@@ -65,24 +65,7 @@ namespace Inlämningsuppgift_1.Controllers
                 });
             }
 
-            var response = new CartResponse
-            {
-                UserId = user.Id,
-                Items = cart.CartItems.Select(ci =>
-                {
-                    var product = _productService.GetProductById(ci.ProductId);
-
-                    return new CartItemResponse
-                    {
-                        ProductId = ci.ProductId,
-                        ProductName = product?.Name ?? "Unknown product",
-                        Quantity = ci.Quantity,
-                        UnitPrice = product?.Price
-                    };
-                }).ToList()
-            };
-
-            response.Total = response.Items.Sum(i => (i.UnitPrice ?? 0m) * i.Quantity);
+            var response = _cartService.ToCartResponse(cart);
 
             return Ok(response);
         }
