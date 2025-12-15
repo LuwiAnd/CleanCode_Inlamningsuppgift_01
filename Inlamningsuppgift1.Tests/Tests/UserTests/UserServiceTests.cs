@@ -1,12 +1,14 @@
-﻿using Inlämningsuppgift_1.Services.Implementations;
-using Inlämningsuppgift_1.Dto.Requests;
+﻿using Inlämningsuppgift_1.Dto.Requests;
+using Inlämningsuppgift_1.Entities;
+using Inlämningsuppgift_1.Repository.Interfaces;
+using Inlämningsuppgift_1.Services.Implementations;
 using Inlamningsuppgift1.Tests.Fakes;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Xunit;
 
 namespace Inlamningsuppgift1.Tests.Tests.UserTests
@@ -48,7 +50,7 @@ namespace Inlamningsuppgift1.Tests.Tests.UserTests
 
 
         // --------------------------------------------------------------------
-        // 2. Login returnerar null vid fel lösenord
+        // 2.1 Login returnerar null vid fel lösenord - test med Fake
         // --------------------------------------------------------------------
         [Fact]
         public void Login_ShouldReturnNull_WhenPasswordIsIncorrect()
@@ -76,6 +78,50 @@ namespace Inlamningsuppgift1.Tests.Tests.UserTests
             // ASSERT
             Assert.Null(result);
         }
+
+
+
+
+
+
+        // --------------------------------------------------------------------
+        // 2.2 Login returnerar null vid fel lösenord - test med Stub
+        // --------------------------------------------------------------------
+
+        [Fact]
+        public void Login_ShouldReturnNull_WhenPasswordIsIncorrect_WithStub()
+        {
+            // ARRANGE
+            var stubRepo = new Mock<IUserRepository>();
+
+            stubRepo
+                .Setup(r => r.GetUserByName("bob"))
+                .Returns(new User
+                {
+                    Id = 1,
+                    Username = "bob",
+                    Password = "correctpassword",
+                    Email = "bob@example.com"
+                });
+
+            var service = new UserService(stubRepo.Object);
+
+            var request = new UserLoginRequest
+            {
+                Username = "bob",
+                Password = "wrong"
+            };
+
+            // ACT
+            var result = service.Login(request);
+
+            // ASSERT
+            Assert.Null(result);  // login misslyckas
+        }
+
+
+
+
 
         // --------------------------------------------------------------------
         // 3. Register returnerar false när användarnamnet redan finns
