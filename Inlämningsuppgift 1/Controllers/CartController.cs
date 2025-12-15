@@ -14,9 +14,7 @@ namespace Inlämningsuppgift_1.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        //private readonly CartService _service = new CartService();
-        //private readonly UserService _userService = new UserService();
-
+        
         private readonly ICartService _cartService;
         private readonly IUserService _userService;
         private readonly IProductService _productService;
