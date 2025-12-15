@@ -26,7 +26,6 @@
   <ItemGroup>
     <Folder Include="Mocks\" />
     <Folder Include="Stubs\" />
-    <Folder Include="Tests\UserTests\" />
   </ItemGroup>
 
 </Project>
